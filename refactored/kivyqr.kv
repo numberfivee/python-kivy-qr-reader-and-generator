@@ -1,0 +1,295 @@
+#:kivy 1.10.1
+#:set primary_color (0.2, 0.5, 0.9, 1)
+#:set secondary_color (0.1, 0.3, 0.7, 1)
+#:set text_color (0.9, 0.9, 0.9, 1)
+#:set button_height 50
+#:set primary_blue (0.08, 0.39, 0.75, 1)    # #1565C0 Material Blue 800
+#:set light_blue (0.13, 0.59, 0.95, 1)      # #2196F3 Material Blue 500
+#:set dark_blue (0.05, 0.28, 0.63, 1)       # #0D47A1 Material Blue 900
+#:set white (1, 1, 1, 1)
+
+<CustomButton@Button>:
+    background_normal: ''
+    background_color: light_blue
+    color: white
+    size_hint_y: None
+    height: '55dp'
+    font_size: '18sp'
+    bold: True
+    canvas.before:
+        Color:
+            rgba: self.background_color
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [10,]
+
+<MenuScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+        spacing: '20dp'
+        padding: '30dp'
+        canvas.before:
+            Color:
+                rgba: primary_blue
+            Rectangle:
+                pos: self.pos
+                size: self.size
+
+        Label:
+            text: "Darkov's QR Codex"
+            font_size: '40sp'
+            size_hint_y: 0.3
+            color: white
+            bold: True
+            
+        GridLayout:
+            cols: 2
+            spacing: '15dp'
+            size_hint_y: 0.7
+            
+            CustomButton:
+                text: 'Generate QR'
+                on_press: root.manager.current = 'generate'
+                
+            CustomButton:
+                text: 'Read QR'
+                on_press: root.manager.current = 'read'
+                
+            CustomButton:
+                text: 'Camera Scan'
+                on_press: root.manager.current = 'camera'
+                
+            CustomButton:
+                text: 'History'
+                on_press: root.manager.current = 'history'
+
+<CameraQR>:
+    BoxLayout:
+        orientation: 'vertical'
+        ActionBar:
+            pos_hint: {'top':1}
+            ActionView:
+                use_separator: True
+                ActionPrevious:
+                    title: "Camera Scanner"
+                    with_previous: True
+                    on_press: root.manager.current = 'menu'
+        Image:
+            id: camera_preview
+            size_hint: 1, 0.8
+            allow_stretch: True
+            keep_ratio: True
+
+<MenuScreen>
+    BoxLayout:
+        orientation: "vertical"
+        ActionBar:
+            pos_hint: {'top':1}
+            ActionView:
+                use_separator: True
+                ActionPrevious:
+                    title: "Darkov's QR Codex - Main Menu"
+                    with_previous: False
+                ActionGroup:
+                    text: "    Navigation    "
+                    font_size: '20sp'
+                    mode: 'spinner'
+                    ActionButton:
+                        text: 'Generate QR Code'
+                        font_size: '18sp'
+                        on_press:
+                            root.manager.current = 'generate'
+                    ActionButton:
+                        text: 'Read QR Code'
+                        font_size: '18sp'
+                        on_press:
+                            app.reloadFiles()
+                        on_release:
+                            root.manager.current = 'read'
+                    ActionButton:
+                        text: 'History'
+                        font_size: '18sp'
+                        on_press:
+                            root.manager.current = 'history'
+                    ActionButton:
+                        text: 'Quit'
+                        font_size: '18sp'
+                        on_press: app.btnClose()
+                    ActionButton:
+                        text: 'Scan QR with Camera'
+                        font_size: '18sp'
+                        on_press:
+                            root.manager.current = 'camera'
+        BoxLayout:
+            canvas.before:
+                Color:
+                    rgba: (38/255), (50/255), (56/255), 1.0
+                Rectangle: 
+                    pos: self.pos
+                    size: self.size
+            orientation: "vertical"
+            padding: 20
+            spacing: 10
+            Label:
+                markup: True
+                text: "[b]Darkov's QR Codex[/b]"
+                font_size: '24sp'
+                size_hint_y: 0.1
+            Button:
+                size_hint_y: None
+                size: (self.texture_size[0], 60)
+                text: "Generate QR Code"
+                font_size: '20sp'
+                background_color: (189/255), (189/255), (189/255), 1.0
+                on_press:
+                    root.manager.current = 'generate'
+            Button:
+                size_hint_y: None
+                size: (self.texture_size[0], 60)
+                text: "Read QR Code"
+                font_size: '20sp'
+                background_color: (189/255), (189/255), (189/255), 1.0
+                on_press:
+                    app.reloadFiles()
+                on_release:
+                    root.manager.current = 'read'
+
+<DataScreen>:
+    BoxLayout:
+        orientation: "vertical"
+        ActionBar:
+            pos_hint: {'top':1}
+            ActionView:
+                use_separator: True
+                ActionPrevious:
+                    title: "Darkov's QR Codex - Data"
+                    with_previous: True
+                    on_press: root.go_to_menu()
+                ActionGroup:
+                    text: "Actions"
+                    mode: 'spinner'
+                    ActionButton:
+                        text: 'Copy Text'
+                        on_press: root.copy_text()
+                    ActionButton:
+                        text: 'Main Menu'
+                        on_press: root.go_to_menu()
+        BoxLayout:
+            canvas.before:
+                Color:
+                    rgba: (38/255), (50/255), (56/255), 1.0
+                Rectangle: 
+                    pos: self.pos
+                    size: self.size
+            orientation: "vertical"
+            padding: 20
+            spacing: 10
+            Label:
+                text: app.txtReadData
+                font_size: '24sp'
+            Button:
+                text: "Back"
+                font_size: '20sp'
+                size_hint_y: 0.3
+                background_color: (189/255), (189/255), (189/255), 1.0
+                on_press:
+                    root.manager.current = 'read'
+            
+
+<ReadQR>:
+    BoxLayout:
+        orientation: "vertical"
+        FileChooserListView:
+            id: filechooser
+            path: root.default_path
+            filters: ['*.png', '*.jpg', '*.jpeg']
+            on_selection: root.load(self.path, self.selection)
+            
+            BoxLayout:
+                size_hint_y: None
+                height: 30
+                Button:
+                    text: "Load"
+                    font_size: '20sp'
+                    background_color: (189/255), (189/255), (189/255), 1.0
+                    on_press:
+                        root.load(filechooser.path, filechooser.selection)
+                    on_release:
+                        root.manager.current = 'datascreen'
+
+<GenerateQR>:
+    BoxLayout:
+        orientation: 'vertical'
+        spacing: 15
+        padding: 20
+        
+        ActionBar:
+            background_color: primary_color
+            ActionView:
+                ActionPrevious:
+                    title: 'Generate QR'
+                    with_previous: True
+                    on_press: root.manager.current = 'menu'
+        
+        TextInput:
+            id: qr_data
+            hint_text: 'Enter text for QR code'
+            multiline: True
+            size_hint_y: 0.4
+            font_size: '18sp'
+            padding: [10, 10]
+            
+        CustomButton:
+            text: 'Generate QR'
+            on_press: root.genQR()
+            
+        CustomButton:
+            text: 'Copy Text'
+            on_press: root.copy_to_clipboard()
+
+<HistoryScreen>:
+    BoxLayout:
+        orientation: "vertical"
+        ActionBar:
+            pos_hint: {'top':1}
+            ActionView:
+                ActionPrevious:
+                    title: "History"
+                    on_press: root.manager.current = 'menu'
+        
+        HistoryRecycleView:
+            id: history_list
+            viewclass: 'Label'
+            RecycleBoxLayout:
+                default_size: None, dp(56)
+                default_size_hint: 1, None
+                size_hint_y: None
+                height: self.minimum_height
+                orientation: 'vertical'
+        
+        Button:
+            text: 'Clear History'
+            size_hint_y: 0.1
+            on_press: root.clear_history()
+
+<CameraQR>:
+    BoxLayout:
+        orientation: 'vertical'
+        ActionBar:
+            pos_hint: {'top':1}
+            ActionView:
+                use_separator: True
+                ActionPrevious:
+                    title: "Darkov's QR Codex - Camera Scanner"
+                    with_previous: True
+                    on_press: root.manager.current = 'menu'
+        Image:
+            id: camera_preview
+            size_hint: 1, 0.8
+            allow_stretch: True
+            keep_ratio: True
+        Button:
+            text: 'Back to Menu'
+            size_hint: 1, 0.1
+            on_press: root.manager.current = 'menu'
